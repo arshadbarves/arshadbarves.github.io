@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Logo Intro Animation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Premium dark cinema reset */
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000000;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      cursor: pointer;
+    }
+
+    /* Screen-covering container */
+    .animation-screen {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Radial dark cinema backdrop glow */
+    .cinema-glow-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(16, 16, 18, 0.8) 0%, rgba(0, 0, 0, 1) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Atmospheric breathing backlight (cinema projection projection glow behind the logo) */
+    .intro-backlight {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(255, 255, 255, 0) 70%);
+      filter: blur(65px);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+    }
+
+    /* Active backlight breathing state */
+    .intro-backlight.animate {
+      animation: backlight-breathe 4.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes backlight-breathe {
+      0% {
+        transform: translate(-50%, -50%) scale(0.4);
+        opacity: 0;
+        filter: blur(30px);
+      }
+      35% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+        filter: blur(55px);
+      }
+      75% {
+        transform: translate(-50%, -50%) scale(1.85);
+        opacity: 0.95;
+        filter: blur(85px);
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(255, 255, 255, 0) 75%);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(2.8);
+        opacity: 0;
+        filter: blur(140px);
+      }
+    }
+
+    /* Logo Container and entrance scale/blur transition */
+    .logo-wrapper {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(0.95);
+      opacity: 0;
+      filter: blur(12px);
+      transition: transform 2.0s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform, opacity, filter;
+    }
+
+    .logo-wrapper.show {
+      opacity: 1;
+      transform: scale(1);
+      filter: blur(0);
+    }
+
+    /* Final scale settle following animation completion */
+    .logo-wrapper.settled {
+      transform: scale(1.1);
+    }
+
+    /* SVG Keyframes Drawing Animations */
+    @keyframes svg-draw {
+      from {
+        stroke-dashoffset: 260;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes svg-fade-glow {
+      from {
+        opacity: 0;
+        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+      }
+      to {
+        opacity: 1;
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.22));
+      }
+    }
+
+    /* SVG Classes */
+    .logo-path-draw {
+      stroke-dasharray: 260;
+      stroke-dashoffset: 260;
+    }
+    
+    .logo-path-draw.play {
+      animation: svg-draw 3.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .logo-path-delay-1 {
+      animation-delay: 0.3s;
+    }
+
+    .logo-path-delay-2 {
+      animation-delay: 0.6s;
+    }
+
+    .logo-rect-glow {
+      opacity: 0;
+    }
+    
+    .logo-rect-glow.play {
+      animation: svg-fade-glow 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 1.0s;
+    }
+
+    /* Cinematic Status Indicator */
+    .status-hint {
+      position: absolute;
+      bottom: 48px;
+      color: rgba(255, 255, 255, 0.28);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-weight: 400;
+      z-index: 10;
+      transition: opacity 1s ease, transform 1s ease;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+    }
+
+    .status-hint.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .status-hint.pulsing {
+      animation: pulse-hint 2.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-hint {
+      0%, 100% { opacity: 0.28; }
+      50% { opacity: 0.55; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="animation-screen" onclick="replayAnimation()">
+    <!-- Cinema Backdrop -->
+    <div class="cinema-glow-bg"></div>
+
+    <!-- Cinematic Backlight projection -->
+    <div id="backlight" class="intro-backlight"></div>
+
+    <!-- Premium SVG Monogram Badge -->
+    <div id="logo-container" class="logo-wrapper">
+      <svg
+        id="logo-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 100 100"
+        width="160"
+        height="160"
+        fill="none"
+        style="overflow: visible;"
+      >
+        <defs>
+          <!-- Volumetric Badge Background Gradient -->
+          <radialGradient id="logo-badge-bg" cx="50%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="rgba(30, 30, 35, 0.88)" />
+            <stop offset="50%" stop-color="rgba(18, 18, 20, 0.92)" />
+            <stop offset="100%" stop-color="rgba(8, 8, 10, 0.98)" />
+          </radialGradient>
+
+          <!-- Beveled Border Gradient -->
+          <linearGradient id="logo-border" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(255, 255, 255, 0.45)" />
+            <stop offset="35%" stop-color="rgba(113, 113, 122, 0.15)" />
+            <stop offset="100%" stop-color="rgba(0, 0, 0, 0.75)" />
+          </linearGradient>
+
+          <!-- Silver Monogram Gradient -->
+          <linearGradient id="logo-mono" x1="30%" y1="20%" x2="70%" y2="80%">
+            <stop offset="0%" stop-color="#FFFFFF" />
+            <stop offset="45%" stop-color="#E4E4E7" />
+            <stop offset="100%" stop-color="#52525B" />
+          </linearGradient>
+
+          <!-- Soft ambient glow backing the monogram -->
+          <radialGradient id="logo-glow" cx="50%" cy="50%" r="45%">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.15" />
+            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+          </radialGradient>
+
+          <!-- Diagonal Specular Shimmer Gradient -->
+          <linearGradient id="logo-shine" x1="-150%" y1="-150%" x2="-50%" y2="-50%">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0" />
+            <stop offset="42%" stop-color="#FFFFFF" stop-opacity="0" />
+            <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.85" />
+            <stop offset="58%" stop-color="#FFFFFF" stop-opacity="0" />
+            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+
+        <!-- 1. Ambient Glow Backing -->
+        <circle cx="50" cy="50" r="35" fill="url(#logo-glow)" />
+
+        <!-- 2. Premium Squircle Badge -->
+        <rect
+          x="8" y="8"
+          width="84" height="84"
+          rx="26"
+          fill="url(#logo-badge-bg)"
+          stroke="url(#logo-border)"
+          stroke-width="1.5"
+          class="logo-rect-glow"
+        />
+
+        <!-- 3. Underlayer: Blur Glow (Animated Draw) -->
+        <g style="opacity: 0.15; filter: blur(2px);">
+          <path
+            d="M 32 70 L 46 38 Q 50 28 54 38 L 68 70"
+            stroke="#FFFFFF"
+            stroke-width="7.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="logo-path-draw logo-path-delay-1"
+          />
+          <path
+            d="M 38 54 L 62 54"
+            stroke="#FFFFFF"
+            stroke-width="7.5"
+            stroke-linecap="round"
+            class="logo-path-draw logo-path-delay-2"
+          />
+        </g>
+
+        <!-- 4. Foreground: Monogram Paths (Animated Draw) -->
+        <g style="filter: drop-shadow(0 1.5px 3px rgba(0, 0, 0, 0.45));">
+          <path
+            d="M 32 70 L 46 38 Q 50 28 54 38 L 68 70"
+            stroke="url(#logo-mono)"
+            stroke-width="3.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="logo-path-draw logo-path-delay-1"
+          />
+          <path
+            d="M 38 54 L 62 54"
+            stroke="url(#logo-mono)"
+            stroke-width="3.5"
+            stroke-linecap="round"
+            class="logo-path-draw logo-path-delay-2"
+          />
+        </g>
+
+        <!-- 5. Shimmer Overlay -->
+        <g style="mix-blend-mode: overlay; opacity: 0.95;">
+          <rect
+            x="8" y="8"
+            width="84" height="84"
+            rx="26"
+            stroke="url(#logo-shine)"
+            stroke-width="2.0"
+          />
+          <path
+            d="M 32 70 L 46 38 Q 50 28 54 38 L 68 70"
+            stroke="url(#logo-shine)"
+            stroke-width="3.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M 38 54 L 62 54"
+            stroke="url(#logo-shine)"
+            stroke-width="3.8"
+            stroke-linecap="round"
+          />
+        </g>
+      </svg>
+    </div>
+
+    <!-- Replay Status Hint -->
+    <div id="hint" class="status-hint">Tap anywhere to replay</div>
+  </div>
+
+  <script>
+    let settleTimer;
+    let hintTimer;
+
+    function replayAnimation() {
+      // Clear any pending timers
+      clearTimeout(settleTimer);
+      clearTimeout(hintTimer);
+
+      const container = document.getElementById('logo-container');
+      const backlight = document.getElementById('backlight');
+      const hint = document.getElementById('hint');
+      const shineGrad = document.getElementById('logo-shine');
+
+      // 1. Immediately reset classes and states
+      container.classList.remove('show', 'settled');
+      backlight.classList.remove('animate');
+      hint.classList.remove('visible', 'pulsing');
+
+      const paths = container.querySelectorAll('.logo-path-draw');
+      const rect = container.querySelector('.logo-rect-glow');
+
+      rect.classList.remove('play');
+      paths.forEach(p => p.classList.remove('play'));
+
+      // Remove existing animation nodes from gradient definition
+      const oldAnimates = shineGrad.querySelectorAll('animate');
+      oldAnimates.forEach(el => el.remove());
+
+      // Force browser reflow to apply the reset
+      void container.offsetWidth;
+
+      // 2. Restart sequence
+      setTimeout(() => {
+        container.classList.add('show');
+        backlight.classList.add('animate');
+        rect.classList.add('play');
+        paths.forEach(p => p.classList.add('play'));
+
+        // Inject new SVG animate tags to restart shimmer sweep timeline
+        const animConfigs = [
+          { attributeName: 'x1', from: '-150%', to: '150%' },
+          { attributeName: 'y1', from: '-150%', to: '150%' },
+          { attributeName: 'x2', from: '-50%', to: '250%' },
+          { attributeName: 'y2', from: '-50%', to: '250%' }
+        ];
+
+        animConfigs.forEach(cfg => {
+          const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+          anim.setAttribute('attributeName', cfg.attributeName);
+          anim.setAttribute('from', cfg.from);
+          anim.setAttribute('to', cfg.to);
+          anim.setAttribute('dur', '2.4s');
+          anim.setAttribute('begin', '1.8s');
+          anim.setAttribute('fill', 'freeze');
+          anim.setAttribute('repeatCount', '1');
+          shineGrad.appendChild(anim);
+        });
+      }, 100);
+
+      // 3. Settle and size up capsule after drawing completes
+      settleTimer = setTimeout(() => {
+        container.classList.add('settled');
+      }, 4800);
+
+      // 4. Reveal subtle user action hint
+      hintTimer = setTimeout(() => {
+        hint.classList.add('visible');
+        setTimeout(() => {
+          if (hint.classList.contains('visible')) {
+            hint.classList.add('pulsing');
+          }
+        }, 1000);
+      }, 5500);
+    }
+
+    // Auto-run on first load
+    window.addEventListener('DOMContentLoaded', () => {
+      replayAnimation();
+    });
+  </script>
+</body>
+</html>
